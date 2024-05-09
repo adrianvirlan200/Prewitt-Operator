@@ -7,11 +7,10 @@ import java.util.*;
 
 import javax.imageio.ImageIO;
 
-//aceasta clasa mosteneste clasa PrewittOperator
-//are rolul de a implementa restul motodelor necesare
-//implamentarii algoritmului
 public class ApplyPrewittOperator extends PrewittOperator {
 	int filter;
+	
+	public float percentage;
 
 	public int getFilter() {
 		return filter;
@@ -29,25 +28,16 @@ public class ApplyPrewittOperator extends PrewittOperator {
 	//constructor
 	public ApplyPrewittOperator() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 	
-	//citeste ce tip de filtru se doreste
-//	public void read() {
-//		@SuppressWarnings("resource")
-//		Scanner sc = new Scanner(System.in);
-//		this.setFilter(sc.nextInt());
-//	}
-	
-	//metoda ce porneste algoritmul
-	public void prewittStart(String in, String out, int filter) throws InterruptedException {
+	public void prewittStart(String in, String out, int filter, ProgressListener listener, Boolean save, Boolean vertical, Boolean horizontal) throws InterruptedException {
 		BufferedImage bufferedImage = null;
 		
-		//se citeste imaginea
+		this.save = save;
+		
 		try {
 			bufferedImage = ImageIO.read(new File(".\\src\\" + in));
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
@@ -55,22 +45,18 @@ public class ApplyPrewittOperator extends PrewittOperator {
 		int height = bufferedImage.getHeight();
 		double[][][] image = new double[3][height][width];
 		
-		//se instantiaza clasele Buffer, Producer, Consumer
 		Buffer b = new Buffer(height,width);
+		b.addProgressListener(listener);
 		Producer producer = new Producer(bufferedImage, b);
 		Consumer consumer = new Consumer(bufferedImage, b);
 		
 		long start = System.currentTimeMillis();
-		//se pornesc cele 2 threaduri sincrone
 		producer.start();
 		consumer.start();
 		
-		//se asteapta pe threadul principal ca ambele threaduri secundare sa 
-		//finalizeze de citit imaginea
 		producer.join();
 		consumer.join();
 		
-		//se salveaza imaginea(matricea de pixeli)
 		image = consumer.getImage();
 		
 		long end = System.currentTimeMillis();
@@ -78,23 +64,19 @@ public class ApplyPrewittOperator extends PrewittOperator {
 		System.out.println("Citirea imaginii a durat " + sec +" secunde");
 		
 		
-		///////////
-		
-		//se aplica algoritul pe matricea citita
-		//in funtie de tipul de filtru ales de utilizator
-		if (filter == 0) {
-
+		if (horizontal) {
 			try {
-				this.detectEdges(image, width, height ,"Horizontal Filter", out);
+				this.detectEdges(image, width, height ,"Horizontal Filter", "horizontal_" + out);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		} else {
+		} 
+		
+		if (vertical) {
 			try {
-				this.detectEdges(image, width,height , "Vertical Filter", out);
+				this.detectEdges(image, width,height , "Vertical Filter", "vertical_" + out);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

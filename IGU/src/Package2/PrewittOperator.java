@@ -7,9 +7,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
-//aceasta clasa mosteneste clasa Convolution
 public abstract class PrewittOperator extends Convolution {
 	
+	boolean save;
 	private static final String HORIZONTAL_FILTER = "Horizontal Filter";
 	public HashMap<String, double[][]> getFilterMap() {
 		return filterMap;
@@ -28,7 +28,6 @@ public abstract class PrewittOperator extends Convolution {
 	private static double[][] FILTER_HORIZONTAL;
 	private final HashMap<String, double[][]> filterMap;
 	
-	//constructor default al clasei
 	public PrewittOperator() {
 		filterMap = buildFilterMap();
 	}
@@ -36,7 +35,6 @@ public abstract class PrewittOperator extends Convolution {
 	private final static double[][] x = { { 1, 0, -1 }, { 1, 0, -1 }, { 1, 0, -1 } };
 	private final static double[][] y = { { 1, 1, 1 }, { 0, 0, 0 }, { -1, -1, -1 } };
 	
-	//bloc static de initalizare
 	static {
 		if (true) {
 			FILTER_VERTICAL = x;
@@ -82,7 +80,6 @@ public abstract class PrewittOperator extends Convolution {
 	}
 
 	private double[][] applyConvolution(int width, int height, double[][][] image, double[][] filter) {
-		//se instantiaza o clasa de tipul Convolution
 		Convolution convolution = new Convolution();
 		double[][] redConv = convolution.convolutionType2(image[0], height, width, filter, 3, 3, 1);
 		double[][] greenConv = convolution.convolutionType2(image[1], height, width, filter, 3, 3, 1);
@@ -108,8 +105,12 @@ public abstract class PrewittOperator extends Convolution {
 				writeBackImage.setRGB(j, i, color.getRGB());
 			}
 		}
-		File outputFile = new File(".\\src\\" + out);
-		ImageIO.write(writeBackImage, "png", outputFile);
+		
+		File outputFile = new File("generated/" + out);
+		
+		System.out.println(save);
+		if(save) 
+			ImageIO.write(writeBackImage, "png", outputFile);
 		
 		long end = System.currentTimeMillis();
 		float sec = (end - start) / 1000F; 
